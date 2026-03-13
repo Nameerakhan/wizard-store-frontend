@@ -11,52 +11,84 @@
   --bg-tertiary: #1d1932;
   --bg-card: #221f38;
   --bg-hover: #2a2645;
-  
+
   /* Wizard gold accents */
   --gold-primary: #d4af37;
   --gold-secondary: #ffd700;
   --gold-muted: #8b7355;
   --gold-glow: rgba(212, 175, 55, 0.4);
-  
+
   /* Purple magical accents */
   --purple-primary: #6b46c1;
   --purple-secondary: #8b5cf6;
   --purple-glow: rgba(139, 92, 246, 0.3);
-  
+
   /* Text colors */
   --text-primary: #f0f0f0;
   --text-secondary: #b8b8c8;
   --text-muted: #858599;
+  --text-tertiary: #6b6b80;
   --text-gold: #d4af37;
-  
+
   /* Borders */
   --border-primary: #2a2a3c;
   --border-accent: #3a3a4c;
   --border-gold: #d4af37;
-  
+
   /* Status colors */
   --success: #4ade80;
   --error: #ef4444;
   --warning: #f59e0b;
   --info: #3b82f6;
-  
+  --status-success: #4ade80;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+
+  /* Glass effects */
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --gradient-magical: linear-gradient(135deg, #6b46c1 0%, #d4af37 100%);
+
   /* Shadows & glows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
   --glow-gold: 0 0 20px rgba(212, 175, 55, 0.3);
   --glow-gold-strong: 0 0 30px rgba(212, 175, 55, 0.5);
-  
+
   /* Animation durations */
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
-  
+
   /* Z-index layers */
   --z-base: 0;
   --z-dropdown: 1000;
   --z-modal: 2000;
   --z-tooltip: 3000;
+}
+
+/* ============================================
+   LIGHT THEME OVERRIDES
+   ============================================ */
+
+[data-theme="light"] {
+  --bg-primary: #f8f5ff;
+  --bg-secondary: #ede9f7;
+  --bg-tertiary: #e4ddf5;
+  --bg-card: #ddd5f0;
+  --bg-hover: #d0c5e8;
+  --text-primary: #1a1535;
+  --text-secondary: #4a4566;
+  --text-muted: #7a7599;
+  --text-tertiary: #9a95b5;
+  --border-primary: #c8bfe8;
+  --border-accent: #b8acd8;
+  --glass: rgba(0, 0, 0, 0.03);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(100, 80, 180, 0.15);
+  --shadow-md: 0 4px 6px rgba(100, 80, 180, 0.12);
+  --shadow-lg: 0 10px 15px rgba(100, 80, 180, 0.15);
 }
 
 @theme inline {
@@ -70,10 +102,12 @@
    BASE STYLES
    ============================================ */
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
 }
 
 html,
@@ -102,7 +136,7 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(ellipse at 20% 30%, rgba(107, 70, 193, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 70%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
   pointer-events: none;
@@ -110,12 +144,12 @@ body::before {
 }
 
 /* ============================================
-   SCROLLBAR STYLING
+   SCROLLBAR STYLING (Gold Shimmer)
    ============================================ */
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -123,13 +157,13 @@ body::before {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--bg-tertiary);
-  border-radius: 5px;
-  border: 2px solid var(--bg-secondary);
+  background: linear-gradient(180deg, var(--gold-muted) 0%, var(--purple-primary) 100%);
+  border-radius: 4px;
+  border: 1px solid var(--bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bg-hover);
+  background: linear-gradient(180deg, var(--gold-primary) 0%, var(--purple-secondary) 100%);
 }
 
 /* ============================================
@@ -187,71 +221,103 @@ body::before {
    ============================================ */
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 5px var(--gold-glow);
-  }
-  50% {
-    box-shadow: 0 0 20px var(--gold-glow), 0 0 30px var(--gold-glow);
-  }
+  0%, 100% { box-shadow: 0 0 5px var(--gold-glow); }
+  50% { box-shadow: 0 0 20px var(--gold-glow), 0 0 30px var(--gold-glow); }
 }
 
 @keyframes sparkle {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(0);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
-.animate-fadeIn {
-  animation: fadeIn var(--duration-normal) ease-in-out;
+@keyframes floatParticle {
+  0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(20px); opacity: 0; }
 }
 
-.animate-slideUp {
-  animation: slideUp var(--duration-slow) ease-out;
+@keyframes rotateAura {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
+@keyframes btnPulse {
+  0%, 80%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+  40% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0.25), 0 0 20px rgba(212, 175, 55, 0.15); }
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+@keyframes focusRingPulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2), 0 0 12px rgba(212, 175, 55, 0.15); }
 }
 
-/* Magical border effect */
+@keyframes shimmerSweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+@keyframes wizardFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes waitingPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.animate-fadeIn { animation: fadeIn var(--duration-normal) ease-in-out; }
+.animate-slideUp { animation: slideUp var(--duration-slow) ease-out; }
+.animate-glow { animation: glow 2s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-wizard-float { animation: wizardFloat 3s ease-in-out infinite; }
+.btn-pulse { animation: btnPulse 5s ease-in-out infinite; }
+.animate-waiting { animation: waitingPulse 2s ease-in-out infinite; }
+
+/* Card shimmer on hover */
+.card-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(212, 175, 55, 0.08) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+  pointer-events: none;
+}
+
+.card-shimmer:hover::after {
+  animation: shimmerSweep 0.7s ease-in-out;
+}
+
+/* Magical border */
 .magical-border {
   position: relative;
   border: 1px solid var(--border-primary);
@@ -278,12 +344,8 @@ body::before {
 }
 
 @keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* ============================================
@@ -356,18 +418,15 @@ a:hover {
    RESPONSIVE UTILITIES
    ============================================ */
 
-/* Prevent text overflow */
 h1, h2, h3, h4, h5, h6, p {
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
 
-/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Focus visible for accessibility */
 *:focus-visible {
   outline: 2px solid var(--gold-primary);
   outline-offset: 2px;
@@ -378,14 +437,12 @@ html {
    ============================================ */
 
 @media (max-width: 640px) {
-  /* Reduce spacing on mobile */
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
   }
 }
 
-/* Prevent horizontal scroll on mobile */
 body {
   overflow-x: hidden;
 }

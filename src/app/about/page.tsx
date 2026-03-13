@@ -1,284 +1,326 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
 
-// TypeScript interfaces
-interface FeatureItemProps {
-  icon: string;
-  title: string;
-  description: string;
+/* ──────────────────── Count-up hook ──────────────────── */
+function useCountUp(target: number, duration = 1800) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
+
+  useEffect(() => {
+    if (!inView) return;
+    let start: number | null = null;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [inView, target, duration]);
+
+  return { value, ref };
 }
 
-interface TechItemProps {
-  title: string;
-  description: string;
-}
-
-interface StatItemProps {
-  number: string;
-  label: string;
-}
-
-// Animation variants
-const fadeInUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.5 }
-  }
+/* ──────────────────── Fade-in-up helper ──────────────────── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.1
-    }
-  }
-};
+/* ──────────────────── How It Works steps ──────────────────── */
+const STEPS = [
+  { icon: '💬', label: 'Query', desc: 'You ask a question in plain language' },
+  { icon: '🔢', label: 'Embed', desc: 'Your query is converted to a vector embedding' },
+  { icon: '🔍', label: 'Search', desc: 'Nearest knowledge chunks are retrieved from ChromaDB' },
+  { icon: '📖', label: 'Ground', desc: 'Context is injected into the GPT-4o-mini prompt' },
+  { icon: '✨', label: 'Respond', desc: 'A grounded, accurate answer is returned to you' },
+];
+
+/* ──────────────────── Tech badges ──────────────────── */
+const TECH = [
+  { name: 'OpenAI GPT-4o-mini', color: '#10a37f', bg: '#10a37f20', icon: '🤖' },
+  { name: 'ChromaDB', color: '#f97316', bg: '#f9731620', icon: '🗄️' },
+  { name: 'FastAPI', color: '#009688', bg: '#00968820', icon: '⚡' },
+  { name: 'Next.js 16', color: '#ffffff', bg: '#ffffff10', icon: '▲' },
+  { name: 'Framer Motion', color: '#8b5cf6', bg: '#8b5cf620', icon: '🎬' },
+  { name: 'Tailwind v4', color: '#38bdf8', bg: '#38bdf820', icon: '🎨' },
+];
 
 export default function AboutPage() {
+  const { value: productsVal, ref: productsRef } = useCountUp(42);
+  const { value: faqsVal, ref: faqsRef } = useCountUp(45);
+  const { value: accuracyVal, ref: accuracyRef } = useCountUp(100);
+
   return (
-    <main className="min-h-screen bg-[var(--bg-primary)] py-20">
-      <div className="max-w-6xl mx-auto px-6">
-        
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--gold-primary)] via-[var(--gold-secondary)] to-[var(--gold-primary)] mb-6">
-            About Wizard Store AI
-          </h1>
-          <p className="text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-            Your magical shopping companion powered by advanced AI
+    <div className="py-12 space-y-24">
+
+      {/* ── Header ── */}
+      <motion.header
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
+      >
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--gold-primary)] via-[var(--gold-secondary)] to-[var(--gold-primary)] mb-6">
+          About Wizard Store AI
+        </h1>
+        <p className="text-lg text-[var(--text-secondary)] max-w-3xl mx-auto">
+          Your magical shopping companion powered by advanced AI
+        </p>
+      </motion.header>
+
+      {/* ── What We Do ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={fadeUp}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+      >
+        <div className="space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-bold text-[var(--gold-primary)]">What We Do</h2>
+          <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
+            Wizard Store AI helps you discover magical merchandise effortlessly through intelligent conversation and advanced search capabilities.
           </p>
-        </motion.header>
+          <ul className="space-y-4 text-[var(--text-secondary)]">
+            {[
+              ['✨', 'Discover magical products faster using AI-powered semantic search'],
+              ['💬', 'Ask questions and receive grounded, accurate answers backed by our knowledge base'],
+              ['🎯', 'Get personalized recommendations based on your house preferences and shopping needs'],
+            ].map(([icon, text]) => (
+              <li key={text} className="flex items-start gap-3">
+                <span className="text-[var(--gold-primary)] text-xl mt-1">{icon}</span>
+                <span>{text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-        {/* Main Content */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="visible"
-          className="space-y-20"
-        >
-          {/* What We Do */}
-          <motion.section
-            variants={fadeInUp}
-            className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
-          >
-            <div>
-              <h2 className="text-3xl font-bold text-[var(--gold-primary)] mb-6">
-                What We Do
-              </h2>
-              <p className="text-[var(--text-secondary)] mb-6 leading-relaxed">
-                Wizard Store AI helps you discover magical merchandise effortlessly:
-              </p>
-              <ul className="space-y-4 text-[var(--text-secondary)]">
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--gold-primary)] mt-1">•</span>
-                  <span>Discover magical products faster using AI-powered semantic search</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--gold-primary)] mt-1">•</span>
-                  <span>Ask questions and receive grounded, accurate answers backed by our knowledge base</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-[var(--gold-primary)] mt-1">•</span>
-                  <span>Get personalized recommendations based on your house preferences and shopping needs</span>
-                </li>
-              </ul>
-            </div>
-            <div className="bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-xl border border-[var(--border-primary)] p-8 text-center">
-              <div className="text-6xl mb-4" aria-hidden="true">🔮</div>
-              <p className="text-[var(--text-secondary)] text-sm">
-                Powered by advanced RAG technology and vector search
-              </p>
-            </div>
-          </motion.section>
-
-          {/* Features */}
-          <motion.section
-            variants={fadeInUp}
-          >
-            <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 text-center">
-              Key Features
-            </h2>
-            <p className="text-[var(--text-secondary)] text-center mb-10 max-w-3xl mx-auto">
-              Everything you need for an intelligent shopping experience
+        {/* Animated crystal ball */}
+        <div className="relative flex items-center justify-center min-h-[320px]">
+          {/* Rotating aura */}
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            className="absolute w-64 h-64 rounded-full"
+            style={{
+              background: 'conic-gradient(from 0deg, transparent 0%, rgba(212,175,55,0.15) 25%, rgba(107,70,193,0.2) 50%, transparent 75%)',
+            }}
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
+            className="absolute w-48 h-48 rounded-full"
+            style={{
+              background: 'conic-gradient(from 180deg, transparent 0%, rgba(139,92,246,0.15) 30%, rgba(212,175,55,0.1) 60%, transparent 80%)',
+            }}
+          />
+          <div className="relative bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-2xl border border-[var(--border-primary)] p-12 text-center z-10">
+            <motion.div
+              animate={{ y: [-6, 6, -6], scale: [1, 1.05, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              className="text-8xl mb-4"
+              aria-hidden="true"
+            >
+              🔮
+            </motion.div>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs">
+              Powered by advanced RAG technology and vector search for lightning-fast, accurate responses
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <FeatureItem
-                icon="🤖"
-                title="AI-Powered Search"
-                description="Advanced semantic search to find exactly what you need"
-              />
-              <FeatureItem
-                icon="💬"
-                title="Natural Conversations"
-                description="Chat naturally and get instant, helpful responses"
-              />
-              <FeatureItem
-                icon="📚"
-                title="Grounded Responses"
-                description="All answers backed by our verified knowledge base"
-              />
-              <FeatureItem
-                icon="🎨"
-                title="House Preferences"
-                description="Get recommendations based on your Hogwarts house"
-              />
-              <FeatureItem
-                icon="⚡"
-                title="Lightning Fast"
-                description="Responses in under 3 seconds guaranteed"
-              />
-              <FeatureItem
-                icon="🔒"
-                title="Reliable & Accurate"
-                description="100% grounded in our product catalog and policies"
-              />
-            </div>
-          </motion.section>
+          </div>
+        </div>
+      </motion.section>
 
-          {/* Technology */}
-          <motion.section
-            variants={fadeInUp}
-          >
-            <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 text-center">
-              The Technology
-            </h2>
-            <p className="text-[var(--text-secondary)] text-center mb-10 max-w-3xl mx-auto">
-              Built on cutting-edge AI infrastructure
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <TechCard
-                title="RAG Architecture"
-                description="Context grounded answers using Retrieval Augmented Generation"
-              />
-              <TechCard
-                title="Vector Database"
-                description="Semantic similarity search powered by ChromaDB"
-              />
-              <TechCard
-                title="AI Embeddings"
-                description="Meaning-based retrieval with GPT-4o-mini"
-              />
-            </div>
-          </motion.section>
+      {/* ── How It Works ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={fadeUp}
+      >
+        <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4 text-center">
+          How It Works
+        </h2>
+        <p className="text-lg text-[var(--text-secondary)] text-center mb-12 max-w-2xl mx-auto">
+          Five steps from your question to a grounded answer
+        </p>
 
-          {/* Stats */}
-          <motion.section
-            variants={fadeInUp}
-            className="bg-gradient-to-r from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-xl border border-[var(--gold-primary)]/30 p-8"
-            aria-labelledby="stats-heading"
-          >
-            <h2 id="stats-heading" className="sr-only">Platform Statistics</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <StatItem number="42+" label="Products" />
-              <StatItem number="45+" label="FAQs" />
-              <StatItem number="100%" label="AI Grounded" />
-              <StatItem number="<3s" label="Response Time" />
-            </div>
-          </motion.section>
+        {/* Timeline */}
+        <div className="relative">
+          {/* Connecting line */}
+          <div className="hidden md:block absolute top-12 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--gold-primary)] to-transparent opacity-30" />
 
-          {/* CTA */}
-          <motion.section
-            variants={fadeInUp}
-            className="text-center bg-gradient-to-r from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-xl border border-[var(--gold-primary)]/30 p-12"
-          >
-            <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
-              Ready to Explore Magical Products?
-            </h2>
-            <p className="text-[var(--text-secondary)] mb-8 max-w-2xl mx-auto">
-              Start chatting with our AI assistant and discover the perfect magical merchandise for you
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/chat">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#F5D76E] text-black font-bold rounded-lg text-lg shadow-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.6)] transition-all duration-300 inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[var(--gold-primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg-secondary)]"
-                >
-                  <span>Start Chatting</span>
-                </motion.button>
-              </Link>
-              
-              <Link href="/products">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-lg text-lg border-2 border-[var(--border-primary)] hover:border-[var(--gold-primary)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--gold-primary)] focus:ring-offset-2 focus:ring-offset-[var(--bg-secondary)]"
-                >
-                  View Products
-                </motion.button>
-              </Link>
-            </div>
-          </motion.section>
-        </motion.div>
-      </div>
-    </main>
-  );
-}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 relative">
+            {STEPS.map((step, i) => (
+              <motion.div
+                key={step.label}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.45, ease: 'easeOut' }}
+                className="flex flex-col items-center text-center"
+              >
+                {/* Step number + icon */}
+                <div className="relative mb-4">
+                  <motion.div
+                    whileHover={{ scale: 1.15 }}
+                    className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-card)] border-2 border-[var(--gold-primary)]/40 flex items-center justify-center text-3xl shadow-lg"
+                  >
+                    {step.icon}
+                  </motion.div>
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[var(--gold-primary)] text-black text-xs font-bold flex items-center justify-center">
+                    {i + 1}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-[var(--gold-primary)] mb-1">{step.label}</h3>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
 
-// Feature Item Component
-function FeatureItem({ icon, title, description }: FeatureItemProps) {
-  return (
-    <motion.div
-      whileHover={{ y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className="flex flex-col p-6 bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-tertiary)] rounded-xl border border-[var(--border-primary)] hover:border-[var(--gold-primary)]/40 transition-colors"
-    >
-      <div className="text-4xl mb-4" aria-hidden="true">
-        {icon}
-      </div>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-        {title}
-      </h3>
-      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-        {description}
-      </p>
-    </motion.div>
-  );
-}
+      {/* ── Key Features ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={fadeUp}
+      >
+        <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4 text-center">Key Features</h2>
+        <p className="text-lg text-[var(--text-secondary)] text-center mb-12 max-w-3xl mx-auto">
+          Everything you need for an intelligent shopping experience
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            ['🤖', 'AI-Powered Search', 'Advanced semantic search to find exactly what you need'],
+            ['💬', 'Natural Conversations', 'Chat naturally and get instant, helpful responses'],
+            ['📚', 'Grounded Responses', 'All answers backed by our verified knowledge base'],
+            ['🎨', 'House Preferences', 'Get recommendations based on your Hogwarts house'],
+            ['⚡', 'Lightning Fast', 'Responses in under 3 seconds guaranteed'],
+            ['🔒', 'Reliable & Accurate', '100% grounded in our product catalog and policies'],
+          ].map(([icon, title, description], i) => (
+            <motion.div
+              key={title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.45 }}
+              whileHover={{ y: -6, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
+              className="card-shimmer flex flex-col p-8 bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-tertiary)] rounded-2xl border border-[var(--border-primary)] hover:border-[var(--gold-primary)]/60 transition-all duration-300"
+            >
+              <div className="text-5xl mb-6">{icon}</div>
+              <h3 className="text-xl font-bold text-[var(--text-primary)] mb-3">{title}</h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">{description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
 
-// Tech Card Component
-function TechCard({ title, description }: TechItemProps) {
-  return (
-    <motion.div
-      whileHover={{ y: -4, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className="p-6 bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-xl border border-[var(--border-primary)] hover:border-[var(--gold-primary)]/40 transition-colors text-center"
-    >
-      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-3">
-        {title}
-      </h3>
-      <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-        {description}
-      </p>
-    </motion.div>
-  );
-}
+      {/* ── Stats ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-60px' }}
+        variants={fadeUp}
+        className="bg-gradient-to-r from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-2xl border border-[var(--gold-primary)]/30 p-12"
+        aria-labelledby="stats-heading"
+      >
+        <h2 id="stats-heading" className="sr-only">Platform Statistics</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div ref={productsRef} className="p-4">
+            <div className="text-3xl sm:text-4xl font-bold text-[var(--gold-primary)] mb-2">{productsVal}+</div>
+            <div className="text-[var(--text-secondary)] text-sm">Products</div>
+          </div>
+          <div ref={faqsRef} className="p-4">
+            <div className="text-3xl sm:text-4xl font-bold text-[var(--gold-primary)] mb-2">{faqsVal}+</div>
+            <div className="text-[var(--text-secondary)] text-sm">FAQs</div>
+          </div>
+          <div ref={accuracyRef} className="p-4">
+            <div className="text-3xl sm:text-4xl font-bold text-[var(--gold-primary)] mb-2">{accuracyVal}%</div>
+            <div className="text-[var(--text-secondary)] text-sm">AI Grounded</div>
+          </div>
+          <motion.div whileHover={{ scale: 1.05 }} className="p-4">
+            <div className="text-3xl sm:text-4xl font-bold text-[var(--gold-primary)] mb-2">&lt;3s</div>
+            <div className="text-[var(--text-secondary)] text-sm">Response Time</div>
+          </motion.div>
+        </div>
+      </motion.section>
 
-// Stat Item Component
-function StatItem({ number, label }: StatItemProps) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className="p-4"
-    >
-      <div className="text-3xl sm:text-4xl font-bold text-[var(--gold-primary)] mb-2">
-        {number}
-      </div>
-      <div className="text-[var(--text-secondary)] text-sm">
-        {label}
-      </div>
-    </motion.div>
+      {/* ── Tech Stack ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={fadeUp}
+      >
+        <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4 text-center">Tech Stack</h2>
+        <p className="text-lg text-[var(--text-secondary)] text-center mb-12 max-w-3xl mx-auto">
+          Built on cutting-edge AI infrastructure
+        </p>
+        <div className="flex flex-wrap justify-center gap-4">
+          {TECH.map((t, i) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, scale: 0.85 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07, duration: 0.35 }}
+              whileHover={{ scale: 1.08, y: -3 }}
+              className="flex items-center gap-2.5 px-5 py-3 rounded-full border font-semibold text-sm transition-all duration-200"
+              style={{
+                backgroundColor: t.bg,
+                borderColor: t.color + '60',
+                color: t.color,
+              }}
+            >
+              <span>{t.icon}</span>
+              <span>{t.name}</span>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* ── CTA ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={fadeUp}
+        className="text-center bg-gradient-to-r from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-2xl border border-[var(--gold-primary)]/30 p-16"
+      >
+        <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-6">
+          Ready to Explore Magical Products?
+        </h2>
+        <p className="text-lg text-[var(--text-secondary)] mb-10 max-w-2xl mx-auto">
+          Start chatting with our AI assistant and discover the perfect magical merchandise for you
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link href="/chat">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#F5D76E] text-black font-bold rounded-lg text-lg shadow-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.6)] transition-all duration-300"
+            >
+              Start Chatting ✨
+            </motion.button>
+          </Link>
+          <Link href="/products">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-8 py-4 bg-[var(--bg-tertiary)] text-[var(--text-primary)] font-semibold rounded-lg text-lg border-2 border-[var(--border-primary)] hover:border-[var(--gold-primary)] transition-all duration-300"
+            >
+              View Products
+            </motion.button>
+          </Link>
+        </div>
+      </motion.section>
+    </div>
   );
 }

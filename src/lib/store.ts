@@ -18,7 +18,7 @@ interface ChatState {
   isLoading: boolean;
   error: string | null;
   theme: 'dark' | 'light';
-  
+
   // Actions
   addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
   setLoading: (loading: boolean) => void;
@@ -27,12 +27,17 @@ interface ChatState {
   toggleTheme: () => void;
 }
 
+const getInitialTheme = (): 'dark' | 'light' => {
+  if (typeof window === 'undefined') return 'dark';
+  return (localStorage.getItem('wizard-theme') as 'dark' | 'light') || 'dark';
+};
+
 export const useChatStore = create<ChatState>((set) => ({
   messages: [],
   isLoading: false,
   error: null,
-  theme: 'dark',
-  
+  theme: getInitialTheme(),
+
   addMessage: (message) => set((state) => ({
     messages: [
       ...state.messages,
@@ -43,14 +48,18 @@ export const useChatStore = create<ChatState>((set) => ({
       },
     ],
   })),
-  
+
   setLoading: (loading) => set({ isLoading: loading }),
-  
+
   setError: (error) => set({ error }),
-  
+
   clearMessages: () => set({ messages: [] }),
-  
-  toggleTheme: () => set((state) => ({
-    theme: state.theme === 'dark' ? 'light' : 'dark',
-  })),
+
+  toggleTheme: () => set((state) => {
+    const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('wizard-theme', newTheme);
+    }
+    return { theme: newTheme };
+  }),
 }));
