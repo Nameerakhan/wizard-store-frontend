@@ -2,15 +2,26 @@
 
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useChatStore } from '@/lib/store';
+import { ShoppingBag } from 'lucide-react';
+import { useChatStore, useCartStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import CartDrawer from '@/components/cart/CartDrawer';
 
 export default function Navbar() {
   const { theme, toggleTheme } = useChatStore();
+  const { hydrated, totalItems } = useCartStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -66,17 +77,35 @@ export default function Navbar() {
                 className="p-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] hover:border-[var(--gold-primary)] transition-colors duration-300"
                 aria-label="Toggle theme"
               >
-                {theme === 'dark' ? '🌙' : '☀️'}
+                {mounted ? (theme === 'dark' ? '🌙' : '☀️') : '🌙'}
               </motion.button>
 
-              {/* CTA Button */}
-              <Link href="/chat" className="hidden sm:block">
+              {/* Cart Button */}
+              {hydrated && (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setCartOpen(true)}
+                  className="relative p-2 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-primary)] hover:border-[var(--gold-primary)] transition-colors duration-300"
+                  aria-label="Open cart"
+                >
+                  <ShoppingBag size={18} className="text-[var(--text-secondary)]" />
+                  {totalItems() > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[var(--gold-primary)] text-black text-[10px] font-bold px-1">
+                      {totalItems()}
+                    </span>
+                  )}
+                </motion.button>
+              )}
+
+              {/* Sign In */}
+              <Link href="/auth/signin" className="hidden sm:block">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="btn-pulse px-4 sm:px-6 py-2 bg-[var(--gold-primary)] text-[var(--bg-primary)] font-semibold rounded-lg hover:bg-[var(--gold-secondary)] transition-all duration-300 text-sm sm:text-base"
                 >
-                  Try Now
+                  Sign In
                 </motion.button>
               </Link>
 
@@ -115,12 +144,12 @@ export default function Navbar() {
               <MobileNavLink href="/chat" active={pathname === '/chat'} onClick={closeMobileMenu}>Chat</MobileNavLink>
               <MobileNavLink href="/products" active={pathname === '/products'} onClick={closeMobileMenu}>Products</MobileNavLink>
               <MobileNavLink href="/about" active={pathname === '/about'} onClick={closeMobileMenu}>About</MobileNavLink>
-              <Link href="/chat" onClick={closeMobileMenu} className="block">
+              <Link href="/auth/signin" onClick={closeMobileMenu} className="block">
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   className="w-full px-6 py-3 bg-[var(--gold-primary)] text-[var(--bg-primary)] font-semibold rounded-lg transition-all duration-300 text-center"
                 >
-                  Try Now 🧙‍♂️
+                  Sign In 🧙‍♂️
                 </motion.button>
               </Link>
             </div>
@@ -141,6 +170,8 @@ export default function Navbar() {
           />
         )}
       </AnimatePresence>
+
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
     </>
   );
 }

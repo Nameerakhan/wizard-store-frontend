@@ -56,6 +56,9 @@
   --glow-gold: 0 0 20px rgba(212, 175, 55, 0.3);
   --glow-gold-strong: 0 0 30px rgba(212, 175, 55, 0.5);
 
+  /* Hero heading gradient — Ivory + Gold for dark theme */
+  --heading-gradient: linear-gradient(to right, #fefce8, #fde68a, #d4af37);
+
   /* Animation durations */
   --duration-fast: 150ms;
   --duration-normal: 300ms;
@@ -73,6 +76,8 @@
    ============================================ */
 
 [data-theme="light"] {
+  /* Hero heading gradient — Dark purple + Gold for light theme */
+  --heading-gradient: linear-gradient(to right, #1a0533, #5b21b6, #c9910a);
   --bg-primary: #f8f5ff;
   --bg-secondary: #ede9f7;
   --bg-tertiary: #e4ddf5;
@@ -94,8 +99,13 @@
 @theme inline {
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Times New Roman', Times, serif;
+  --font-mono: 'Times New Roman', Times, serif;
+}
+
+/* ── Wizard font (Cinzel Decorative) on all big headings ── */
+h1, h2, h3 {
+  font-family: var(--font-wizard), 'Times New Roman', serif;
 }
 
 /* ============================================
@@ -119,9 +129,7 @@ body {
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Times New Roman', Times, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
@@ -148,8 +156,8 @@ body::before {
    ============================================ */
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -445,6 +453,29 @@ html {
 
 body {
   overflow-x: hidden;
+}
+
+/* ============================================
+   CONFETTI ANIMATION
+   ============================================ */
+
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+  60%  { opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+}
+
+/* ============================================
+   BORDER GLOW (featured cards)
+   ============================================ */
+
+@keyframes borderGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(212,175,55,0.2); }
+  50%       { box-shadow: 0 0 18px rgba(212,175,55,0.5), 0 0 30px rgba(212,175,55,0.2); }
+}
+
+.border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
 }
 
 /* ============================================

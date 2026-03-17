@@ -1,9 +1,8 @@
 /**
  * API utilities for connecting to Python backend
- * Backend runs on http://localhost:8000
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 export interface ChatRequest {
   query: string;
@@ -58,6 +57,42 @@ export async function checkBackendHealth(): Promise<boolean> {
   }
 }
 
+// ── Guest Order types ─────────────────────────────────────────────────────────
+
+export interface GuestOrderPayload {
+  customer_name: string;
+  customer_email: string;
+  shipping_address: {
+    full_name: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  };
+  items: { product_name: string; product_price: number; quantity: number }[];
+}
+
+export async function placeGuestOrder(payload: GuestOrderPayload): Promise<{ order_id: string; status: string; total: number }> {
+  const response = await fetch(`${API_BASE_URL}/orders/guest`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error((err as { detail?: string }).detail || `Order failed (${response.status})`);
+  }
+  return response.json();
+}
+
+export async function getGuestOrder(orderId: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/orders/guest/${orderId}`);
+  if (!response.ok) throw new Error(`Order not found (${response.status})`);
+  return response.json();
+}
+
 /**
  * Get product recommendations
  */
@@ -77,8 +112,7 @@ export async function getProductRecommendations(query: string): Promise<any[]> {
 
     const data = await response.json();
     return data.products || [];
-  } catch (error) {
-    console.error('Error getting recommendations:', error);
+  } catch {
     return [];
   }
 }

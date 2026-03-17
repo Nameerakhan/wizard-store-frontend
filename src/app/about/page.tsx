@@ -8,7 +8,7 @@ import Link from 'next/link';
 function useCountUp(target: number, duration = 1800) {
   const [value, setValue] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const inView = useInView(ref, { once: true, amount: 0.1 });
 
   useEffect(() => {
     if (!inView) return;
@@ -29,7 +29,7 @@ function useCountUp(target: number, duration = 1800) {
 /* ──────────────────── Fade-in-up helper ──────────────────── */
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
 };
 
 /* ──────────────────── How It Works steps ──────────────────── */
@@ -46,7 +46,7 @@ const TECH = [
   { name: 'OpenAI GPT-4o-mini', color: '#10a37f', bg: '#10a37f20', icon: '🤖' },
   { name: 'ChromaDB', color: '#f97316', bg: '#f9731620', icon: '🗄️' },
   { name: 'FastAPI', color: '#009688', bg: '#00968820', icon: '⚡' },
-  { name: 'Next.js 16', color: '#ffffff', bg: '#ffffff10', icon: '▲' },
+  { name: 'Next.js 16', color: '#a78bfa', bg: '#7c3aed15', icon: '▲' },
   { name: 'Framer Motion', color: '#8b5cf6', bg: '#8b5cf620', icon: '🎬' },
   { name: 'Tailwind v4', color: '#38bdf8', bg: '#38bdf820', icon: '🎨' },
 ];
@@ -76,10 +76,9 @@ export default function AboutPage() {
 
       {/* ── What We Do ── */}
       <motion.section
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
-        variants={fadeUp}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
         className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
       >
         <div className="space-y-6">
@@ -140,7 +139,7 @@ export default function AboutPage() {
       <motion.section
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ once: true, amount: 0.1 }}
         variants={fadeUp}
       >
         <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4 text-center">
@@ -189,7 +188,7 @@ export default function AboutPage() {
       <motion.section
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ once: true, amount: 0.1 }}
         variants={fadeUp}
       >
         <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4 text-center">Key Features</h2>
@@ -256,7 +255,7 @@ export default function AboutPage() {
       <motion.section
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ once: true, amount: 0.1 }}
         variants={fadeUp}
       >
         <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-4 text-center">Tech Stack</h2>
@@ -286,11 +285,77 @@ export default function AboutPage() {
         </div>
       </motion.section>
 
+      {/* ── Founder Note ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={fadeUp}
+        className="relative"
+      >
+        <div className="rounded-2xl border border-[var(--gold-primary)]/25 bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-tertiary)] p-8 md:p-12 overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[var(--gold-primary)] to-[var(--purple-primary)] rounded-l-2xl" />
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[var(--gold-primary)]/5 blur-[80px] pointer-events-none" />
+          <div className="relative pl-4">
+            <div className="text-3xl mb-4">👨‍💻</div>
+            <blockquote className="text-xl md:text-2xl font-medium text-[var(--text-primary)] leading-relaxed mb-6 italic">
+              "I built this to show that AI can make shopping smarter without being gimmicky. Every answer the wizard gives is grounded in real data — no hallucinations, no fluff."
+            </blockquote>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#F5D76E] flex items-center justify-center text-black font-bold text-sm">
+                WS
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-[var(--text-primary)]">The Builder</div>
+                <div className="text-xs text-[var(--text-tertiary)]">Wizard Store AI · Built with FastAPI, Next.js &amp; OpenAI</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* ── Infrastructure badges ── */}
+      <motion.section
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={fadeUp}
+        className="text-center"
+      >
+        <p className="text-xs font-semibold uppercase tracking-widest text-[var(--text-tertiary)] mb-6">Powered by</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          {[
+            { label: 'FastAPI', color: '#009688', bg: '#00968815', icon: '⚡' },
+            { label: 'PostgreSQL', color: '#336791', bg: '#33679115', icon: '🐘' },
+            { label: 'OpenAI', color: '#10a37f', bg: '#10a37f15', icon: '🤖' },
+            { label: 'ChromaDB', color: '#f97316', bg: '#f9731615', icon: '🗄️' },
+            { label: 'Next.js', color: '#a78bfa', bg: '#7c3aed15', icon: '▲' },
+            { label: 'Vercel', color: '#818cf8', bg: '#6366f115', icon: '🔺' },
+            { label: 'Tailwind', color: '#38bdf8', bg: '#38bdf815', icon: '🎨' },
+            { label: 'Framer Motion', color: '#8b5cf6', bg: '#8b5cf615', icon: '🎬' },
+          ].map((b, i) => (
+            <motion.span
+              key={b.label}
+              initial={{ opacity: 0, scale: 0.85 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06, duration: 0.3 }}
+              whileHover={{ scale: 1.08, y: -2 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium transition-all duration-200"
+              style={{ backgroundColor: b.bg, borderColor: b.color + '50', color: b.color }}
+            >
+              <span>{b.icon}</span>
+              <span>{b.label}</span>
+            </motion.span>
+          ))}
+        </div>
+      </motion.section>
+
       {/* ── CTA ── */}
       <motion.section
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ once: true, amount: 0.1 }}
         variants={fadeUp}
         className="text-center bg-gradient-to-r from-[var(--bg-secondary)] to-[var(--bg-tertiary)] rounded-2xl border border-[var(--gold-primary)]/30 p-16"
       >

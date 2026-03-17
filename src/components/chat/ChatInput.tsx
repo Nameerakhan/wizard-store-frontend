@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, KeyboardEvent } from 'react';
+import { useState, useRef, KeyboardEvent, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Loader2 } from 'lucide-react';
 import { useChatStore } from '@/lib/store';
@@ -11,7 +11,29 @@ export function ChatInput() {
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { addMessage, setLoading, setError, isLoading } = useChatStore();
+  const { addMessage, setLoading, setError, isLoading, pendingQuery, setPendingQuery } = useChatStore();
+  const hasSentPending = useRef(false);
+
+  // Auto-send any pending query (e.g. from "Ask About This" on Products page)
+  useEffect(() => {
+    if (!pendingQuery || hasSentPending.current) return;
+    hasSentPending.current = true;
+    setPendingQuery(null);
+    const query = pendingQuery;
+    addMessage({ role: 'user', content: query });
+    setLoading(true);
+    setError(null);
+    sendChatQuery({ query })
+      .then((response) => {
+        addMessage({ role: 'assistant', content: response.answer, context: response.context });
+      })
+      .catch((error) => {
+        setError(error instanceof Error ? error.message : 'Request failed');
+        addMessage({ role: 'assistant', content: "I'm having trouble connecting to the server. Please ensure the backend is running." });
+      })
+      .finally(() => setLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const maxCharacters = 1000;
 
